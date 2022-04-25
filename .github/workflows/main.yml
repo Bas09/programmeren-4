@@ -13,7 +13,7 @@ jobs:
     name: Heroku
     steps:
       - uses: actions/checkout@v2
-      - uses: CDNievas/heroku-action@v1.0 # This is the action
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_email: b.dekker6@student.avans.nl
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
