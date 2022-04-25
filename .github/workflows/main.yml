@@ -1,18 +1,20 @@
 
-name: Deploy
+name: Deploy to Heroku
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+    name: Heroku
     steps:
       - uses: actions/checkout@v2
       - uses: CDNievas/heroku-action@v1.0 # This is the action
         with:
-          heroku_email: "b.dekker6@student.avans.nl"
-          heroku_api_key: ${{a73fc51b-d5bc-4317-9fcc-1b55e6fc823a}}
-          heroku_app_name: "programmeren4-share-a-meal"
+          heroku_email: b.dekker6@student.avans.nl
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: programmeren4-share-a-meal
