@@ -16,5 +16,5 @@ jobs:
               with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: programmeren4-share-a-meal
-            heroku_email: ${{secrets.HEROKU_EMAIL}}
+            heroku_email: ${{secrets.HEROKU_USER_EMAIL}}
 
