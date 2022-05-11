@@ -12,15 +12,29 @@ app.all("*", (req, res, next) => {
   next();
 });
 
-app.use(userRouter);
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: 200,
+    result: "Share-a-meal app",
+  });
+});
+
+app.use('/api', userRouter);
 
 app.all("*", (req, res) => {
-  res.status(404).json({
-    status: 404,
+  res.status(401).json({
+    status: 401,
     result: "End-point not found",
   });
 });
 
+// app.use((err, req, res) => {
+//   res.status(err.status).json(err);
+// });
+
 app.listen(port, () => {
   console.log(`app is listening on http://localhost:${port}`);
 });
+
+module.exports = app;
