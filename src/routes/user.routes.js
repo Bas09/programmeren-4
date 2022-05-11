@@ -1,4 +1,6 @@
-const router = require("express").Router();
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/user.controller');
 
 let database = [];
 let databaseId = 0;
@@ -17,43 +19,29 @@ database.push({
     "phoneNumber": "06 12425587"
   });
 
-// UC-201 Register as a new user
-router.post("/", function(req, res) {
-    const user = req.body;
-    const emailAdress = req.body.emailAdress;
+  router.get("/", (req, res) => {
+    res.status(200).json({
+      status: 200,
+      result: "Share-a-meal app",
+    });
+  });
 
-    if (emailAdress != null) {
-        if (database.filter((item) => item.emailAdress == emailAdress).length > 0) {
-            res.status(400).json({
-                statusCode: 400,
-                message: 'EmailAdress already taken!'
-            });
-        } else {
-            databaseId++
-            database.push({
-                id: databaseId,
-                ...user,
-            });
-            res.json(database.filter((item) => item.emailAdress == emailAdress));
-        }
-    } else {
-        res.status(400).json({
-            statusCode: 400,
-            message: 'body does not cointain emailadress!', 
-        });
-    }
-});
+// UC-201 Register as a new user
+
+
+// router.post("/", userController.addUser)
+   
 
 
 
 // UC-202 Get all users
-router.get("/", function (req, res) {
+router.get("/api/user", function (req, res) {
     res.send(database);
   });
   
  
 // UC-203 Request personal user profile
-router.get("/profile", function(req, res) {
+router.get("/api/user/profile", function(req, res) {
     res.status(200).json({
         statusCode: 200,
         message: 'route/function not working yet'
@@ -62,7 +50,7 @@ router.get("/profile", function(req, res) {
 
 
 // UC-204 Get single user by ID
-router.get("/:userId", function(req, res) {
+router.get("/api/user/:userId", function(req, res) {
     const userId = req.params.userId;
     console.log('User searched with id: ${userId}');
     const user = database.filter((item) => item.id == userId);
@@ -72,7 +60,7 @@ router.get("/:userId", function(req, res) {
 });
 
 // UC-205 Update a single user
-router.put("/:userId", function (req, res) {
+router.put("/api/user/:userId", function (req, res) {
     let emailAdress = req.body.emailAdress;
     let user = req.body;
     const userId = req.params.userId;
@@ -97,7 +85,7 @@ router.put("/:userId", function (req, res) {
   });
 
 // UC-206 Delete a user
-router.delete("/:userId", function (req, res) {
+router.delete("/api/user/:userId", function (req, res) {
     const userId = req.params.userId;
     let user = req.body;
     
