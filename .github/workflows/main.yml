@@ -6,17 +6,14 @@ on:
       - main
 
 jobs:
-
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: Heroku # naam van mijn environment op GitHub
-    steps:
-      - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: programmeren4-share-a-meal
-
-
+ deploy:
+        runs-on: ubuntu-latest
+        environment:
+            name: Heroku # naam van mijn environment op GitHub
+        steps:
+            - uses: actions/checkout@v2
+            - uses: akhileshns/heroku-deploy@v3.12.12
+              with:
+            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+            heroku_app_name: programmeren4-share-a-meal
+            heroku_email: ${{secrets.HEROKU_USER_EMAIL}}
