@@ -6,7 +6,7 @@ const port = process.env.PORT;
 const bodyParser = require("body-parser");
 const userRouter = require("./src/routes/user.routes");
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.all("*", (req, res, next) => {
     const method = req.method;
@@ -30,9 +30,9 @@ app.all("*", (req, res) => {
     });
 });
 
-// app.use((err, req, res) => {
-//   res.status(err.status).json(err);
-// });
+app.use((err, req, res, next) => {
+  res.status(err.status).json(err);
+});
 
 app.listen(port, () => {
     console.log(`app is listening on http://localhost:${port}`);
