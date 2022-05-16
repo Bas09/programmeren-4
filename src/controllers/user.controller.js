@@ -2,22 +2,6 @@ const assert = require('assert');
 const res = require('express/lib/response');
 const dbconnection = require('../../database/dbconnection');
 
-let database = [];
-let databaseId = 0;
-
-
-// add first user to database
-database.push({
-    "id": 0,
-    "firstName": "John",
-    "lastName": "Doe",
-    "street": "Lovensdijkstraat 61",
-    "city": "Breda",
-    "isActive": true,
-    "emailAdress": "j.doe@server.com",
-    "password": "secret123",
-    "phoneNumber": "06 12425587"
-});
 
 let controller = {
 
