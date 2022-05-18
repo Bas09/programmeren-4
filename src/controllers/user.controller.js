@@ -40,7 +40,7 @@ let controller = {
 
     // UC-201 Register as a new user
     addUser: (req, res) => {
-        const user = req.body;
+        let user = req.body;
 
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err;
@@ -76,6 +76,10 @@ let controller = {
             );
         });
     },
+
+
+
+   
     // UC-202 get all users
 
     getAll: (req, res, next) => {
