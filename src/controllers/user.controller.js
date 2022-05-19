@@ -1,28 +1,36 @@
 const assert = require("assert");
 const res = require("express/lib/response");
 const dbconnection = require("../../database/dbconnection");
+const Joi = require('joi'); 
 
 
 let controller = {
     validateUser: (req, res, next) => {
         let user = req.body;
-        let { firstName, lastName, street, city, password, emailAdress } = user;
 
         try {
-            assert(typeof firstName === "string", "firstName must be a string");
-            assert(typeof lastName === "string", "lastName must be a string");
-            assert(typeof street === "string", "street must be a string");
-            assert(typeof city === "string", "city must be a string");
-            assert(typeof password === "string", "password must be a string");
-            assert(typeof emailAdress === "string", "emailAdress must be a string");
-            next();
+            const schema = Joi.object({
+                firstName: Joi.string().alphanum().required(),
+                lastName: Joi.string().alphanum().required(),
+                street: Joi.string().alphanum().required(),
+                city: Joi.string().alphanum().required(),
+                password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
+                emailAdress: Joi.string().email({minDomainSegments: 2}).required()
+            });
+            schema.validate(user);
+
         } catch (err) {
             res.status(400).json({
                 statusCode: 400,
                 error: err.message,
             });
+            next(err);
         }
+
+        next();
     },
+
+    
 
     // validateUpdatedUser: (req, res, next) => {
     //     let user = req.body;
@@ -39,41 +47,39 @@ let controller = {
     // },
 
     // UC-201 Register as a new user
-    addUser: (req, res) => {
+    addUser: (req, res, next) => {
         let user = req.body;
 
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err;
 
-            dbconnection.query(
-                "INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES (?, ?, ?, ?, ?, ?);", [
-                user.firstName,
-                user.lastName,
-                user.street,
-                user.city,
-                user.password,
-                user.emailAdress,
-            ],
-                function (error, results, fields) {
-                    connection.release();
+            dbconnection.query("SELECT * FROM user", function (error, results, fields) {
+                if (error) throw error;
 
-                    if (error) {
-                        res.status(409).json({
-                            status: 409,
-                            message: error.message,
-                        });
-                    } else {
-                        res.status(201).json({
-                            result: {
-                                id: results.insertId,
-                                isActive: user.isActive || true,
-                                phoneNumber: user.isActive || "-",
-                                ...user,
-                            },
-                        });
-                    }
+                if (results.filter(item => item.emailAdress == user.emailAdress).length == 0) {
+                    dbconnection.query(
+                        "INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES (?, ?, ?, ?, ?, ?);", [
+                        user.firstName,
+                        user.lastName,
+                        user.street,
+                        user.city,
+                        user.password,
+                        user.emailAdress,
+                    ]);
+                    dbconnection.release();
+                    if (error) throw error;
+
+                    res.status(201).json({
+                        status: 201,
+                        result: results[1]
+                    });
+                } else if (error) {
+                    res.status(409).json({
+                        status: 409,
+                        message: "EmailAdress already in use",
+                    });
                 }
-            );
+            });
         });
     },
 
@@ -83,23 +89,38 @@ let controller = {
     // UC-202 get all users
 
     getAll: (req, res, next) => {
+        let query = "SELECT * FROM user";
+        let { firstName, isActive } = req.query;
+
+        if (isActive || firstName) {
+            query += " WHERE ";
+            if (firstName) {
+                query += "firstName LIKE '%${firstName}%'";
+            }
+
+            if (isActive && firstName) {
+                query += " AND ";
+            }
+
+            if (isActive) {
+                query += "isActive = ${isActive}";
+            }
+        }
+
+
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err; // not connected!
-
+            
             // Use the connection
-            connection.query(
-                "SELECT *, FROM user",
-                function (error, results, fields) {
+            connection.query(query, function (error, results, fields) {
                     // When done with the connection, release it.
                     connection.release();
 
                     // Handle error after the release.
                     if (error) throw error;
-
-                    console.log("#results = ", results.length)
-                    res.status(201).json({
-                        status: 201,
-                        results: results,
+                    res.status(200).json({
+                        status: 200,
+                        results: results
                     });
                 });
         });
@@ -116,16 +137,14 @@ let controller = {
 
     // UC-204 Get a single user by id
 
-    getUserById: (req, res, next) => {
-        const userId = req.params.userId;
-        console.log("User searched with id: ${userId}");
+    getUserById: (req, res, next) => {   
         dbconnection.getConnection(function (err, connection) {
+            let userId = req.params.userId;
+
             if (err) throw err; // not connected!
 
             // Use the connection
-            connection.query(
-                "SELECT *, FROM user WHERE id = ${userId}", function (error, results, fields) {
-                    // When done with the connection, release it.
+            connection.query("SELECT * FROM user WHERE id = ?;", [userId], function (error, results, fields) {
                     connection.release();
                     // Handle error after the release.
                     if (error) {
@@ -149,10 +168,9 @@ let controller = {
         });
     },
 
+    
 
     // UC-205 Update a single user  -----work in progress
-
-
 
     updateUser: (req, res, next) => {
         let user = req.body;
@@ -163,7 +181,7 @@ let controller = {
 
             // Use the connection
             connection.query(
-                "SELECT *, FROM user WHERE id = ${userId}", function (error, results, fields) {
+                "SELECT * FROM user WHERE id = ${userId}", function (error, results, fields) {
                     // When done with the connection, release it.
                     connection.release();
                     // Handle error after the release.
