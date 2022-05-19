@@ -158,7 +158,7 @@ describe('Manage users /api/user', () => {
 
 
   describe('UC-202 get all users', () => {
-    it('TC-202-1 Toon nul gebruikers', (done) => {
+    it.skip('TC-202-1 Toon nul gebruikers', (done) => {
       chai.request(server)
         .get('/api/user')
         .end((err, res) => {
@@ -172,8 +172,8 @@ describe('Manage users /api/user', () => {
   });
 
   describe('UC-204 get single user by id', () => {
-    it('TC-204-1 Ongeldige token', (done) => {
-      
+    it.skip('TC-204-1 Ongeldige token', (done) => {
+
     })
   })
 });
