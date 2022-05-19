@@ -89,7 +89,7 @@ describe('Manage users /api/user', () => {
       })
     });
 
-    it('TC-201-3  Niet-valide wachtwoord', (done) => {
+    it.skip('TC-201-3  Niet-valide wachtwoord', (done) => {
       let user = {
         firstName: "John",
         lastName: "Test",
@@ -112,7 +112,7 @@ describe('Manage users /api/user', () => {
         });
     });
 
-    it('TC-201-4  Gebruiker bestaat al', (done) => {
+    it.skip('TC-201-4  Gebruiker bestaat al', (done) => {
       let user = {
         firstName: "John",
         lastName: "Test",
@@ -135,7 +135,7 @@ describe('Manage users /api/user', () => {
         });
     });
 
-    it('TC-201-5  Gebruiker succesvol geregistreerd', (done) => {
+    it.skip('TC-201-5  Gebruiker succesvol geregistreerd', (done) => {
       let user = {
         firstName: "Johnny",
         lastName: "Tester",
@@ -155,13 +155,16 @@ describe('Manage users /api/user', () => {
           done();
         });
     });
-
-    
-
-
-
-
-
   });
+
+ 
+  describe('UC-202 get all users', () => {
+    it('TC-202-1 Toon nul gebruikers', (done) => {
+      
+
+    });
+  });
+
+
 });
 
