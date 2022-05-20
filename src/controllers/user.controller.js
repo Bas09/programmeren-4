@@ -2,49 +2,53 @@ const assert = require("assert");
 const res = require("express/lib/response");
 const dbconnection = require("../../database/dbconnection");
 const Joi = require('joi'); 
+const { debug } = require("console");
 
 
 let controller = {
     validateUser: (req, res, next) => {
         let user = req.body;
 
-        try {
-            const schema = Joi.object({
-                firstName: Joi.string().alphanum().required(),
-                lastName: Joi.string().alphanum().required(),
-                street: Joi.string().alphanum().required(),
-                city: Joi.string().alphanum().required(),
-                password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-                emailAdress: Joi.string().email({minDomainSegments: 2}).required()
-            });
-            schema.validate(user);
 
-        } catch (err) {
-            res.status(400).json({
-                statusCode: 400,
-                error: err.message,
-            });
-            next(err);
-        }
+// const schema = Joi.object({
+//     firstName: Joi.string().alphanum().required(),
+//     lastName: Joi.string().alphanum().required(),
+//     password: Joi.string().regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/).required(),
+//     street: Joi.string().required(),
+//     city: Joi.string().alphanum().required(),
+//     emailAdress: Joi.string().email({ minDomainSegments: 2 }),
+//   });
+//   const { error } = schema.validate(user);
+//   if (error) {
+//     const err = {
+//       status: 400,
+//       message: "Input must be valid"
+//     };
+//     next(err);
+//   }
+//   next();
+// },
 
-        next();
-    },
+const schema = Joi.object({
+    firstName: Joi.string().alphanum().required(),
+    lastName: Joi.string().alphanum().required(),
+    password: Joi.string(), //.regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/).required(),
+    street: Joi.string().required(),
+    city: Joi.string().alphanum().required(),
+    emailAdress: Joi.string().email({ minDomainSegments: 2 }),
+  });
+  const { error } = schema.validate(user);
+  if (error) {
+    const err = {
+      status: 400,
+      // Error message wrapped variable in /" "\ for some reason
+      message: error.message.replace(/"/g, '')
+    };
+    next(err);
+  }
+  next();
+},
 
-    
-
-    // validateUpdatedUser: (req, res, next) => {
-    //     let user = req.body;
-    //     let { firstName, lastName, street, city, isActive, emailAdress, password, phoneNumber } = user;
-
-    //     try {
-    //         assert(typeof emailAdress === "string", "emailAdress must be a string");
-    //     } catch (err) {
-    //         res.status(400).json({
-    //             statusCode: 400,
-    //             error: err.message,
-    //         });
-    //     }
-    // },
 
     // UC-201 Register as a new user
     addUser: (req, res, next) => {
@@ -57,7 +61,7 @@ let controller = {
                 if (error) throw error;
 
                 if (results.filter(item => item.emailAdress == user.emailAdress).length == 0) {
-                    dbconnection.query(
+                    connection.query(
                         "INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES (?, ?, ?, ?, ?, ?);", [
                         user.firstName,
                         user.lastName,
@@ -66,12 +70,12 @@ let controller = {
                         user.password,
                         user.emailAdress,
                     ]);
-                    dbconnection.release();
+                    connection.release();
                     if (error) throw error;
 
                     res.status(201).json({
                         status: 201,
-                        result: results[1]
+                        result: results
                     });
                 } else if (error) {
                     res.status(409).json({
@@ -79,13 +83,14 @@ let controller = {
                         message: "EmailAdress already in use",
                     });
                 }
+                next(err)
             });
         });
     },
 
 
 
-   
+
     // UC-202 get all users
 
     getAll: (req, res, next) => {
@@ -120,7 +125,7 @@ let controller = {
                     if (error) throw error;
                     res.status(200).json({
                         status: 200,
-                        results: results
+                        result: results
                     });
                 });
         });
@@ -173,16 +178,19 @@ let controller = {
     // UC-205 Update a single user  -----work in progress
 
     updateUser: (req, res, next) => {
-        let user = req.body;
-        const userId = req.params.userId;
+        let userId = req.params.id;
+    let { firstName, lastName, emailAdress, password, phoneNumber, street, city } = req.body;
 
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err; // not connected
 
             // Use the connection
             connection.query(
-                "SELECT * FROM user WHERE id = ${userId}", function (error, results, fields) {
+                "SELECT * FROM user WHERE id = ?; SELECT * FROM user WHERE emailAdress = ?;", [userId, emailAdress], function (error, results, fields) {
                     // When done with the connection, release it.
+                    
+
+
                     connection.release();
                     // Handle error after the release.
                     if (error) {
@@ -210,22 +218,21 @@ let controller = {
     // UC-206 Delete user
 
     deleteUser: (req, res) => {
-        const userId = req.params.userId;
+        let userId = req.params.userId;
 
         dbconnection.getConnection(function (err, connection) {
             if (err) next(err) // not connected!
 
             // Use the connection
             connection.query(
-                "DELETE FROM user WHERE id = ${userId}", function (error, results, fields) {
+                "DELETE FROM user WHERE id = ?; SELECT * FROM USER;", [userId], function (error, results, fields) {
                     // When done with the connection, release it.
                     connection.release()
 
                     // Handle error after the release.
-                    if (error) {
-                        console.log(error);
-                        return;
-                    } else if (results.affectedRows == 0) {
+                    if (error) throw error;
+
+                    if (results[0].affectedRows == 0) {
                         res.status(400).json({
                             status: 400,
                             message: "User not found"
@@ -234,7 +241,7 @@ let controller = {
                         res.status(200).json({
                             status: 200,
                             message: "User has been deleted",
-                            result: results
+                            result: results[1]
                         });
                     }
                 });
@@ -243,6 +250,5 @@ let controller = {
 };
 
 module.exports = controller;
-
 
 

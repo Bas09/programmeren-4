@@ -4,7 +4,10 @@ require("dotenv").config();
 
 const port = process.env.PORT;
 const bodyParser = require("body-parser");
-const userRouter = require("./src/routes/user.routes");
+
+const userRoutes = require("./src/routes/user.routes");
+// const mealRoutes = require("./src/routes/meal.routes");
+// const authRoutes = require("./src/routes/authentication.routes");
 
 app.use(express.json());
 
@@ -14,14 +17,17 @@ app.all("*", (req, res, next) => {
     next();
 });
 
-app.get("/", (req, res) => {
-    res.status(200).json({
-        status: 200,
-        result: "Share-a-meal app",
-    });
-});
+// app.get("/", (req, res) => {
+//     res.status(200).json({
+//         status: 200,
+//         result: "Share-a-meal app",
+//     });
+// });
 
-app.use("/api", userRouter);
+
+app.use("/api", userRoutes);
+// app.use("/api", mealRoutes);
+// app.use("/api", authRoutes);
 
 app.all("*", (req, res) => {
     res.status(401).json({
