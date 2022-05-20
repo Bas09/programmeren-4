@@ -3,7 +3,7 @@ const chaiHttp = require('chai-http');
 const server = require('../../index');
 
 require('dotenv').config()
-const dbconnection = require('../../database/dbconnection');
+const dbconnection = require('../../src/database/dbconnection');
 const { doesNotMatch } = require('assert');
 
 chai.should();
@@ -44,15 +44,14 @@ describe('Manage users /api/user', () => {
 
   describe('UC-201 Create user', () => {
 
-    it.skip('TC-201-1 Verplicht veld ontbreekt', (done) => {
+    it('TC-201-1 Verplicht veld ontbreekt', (done) => {
       let user = {
-        firstName: "John",
+        // firstName: "John",
         lastName: "Test",
         street: "Teststraat",
         city: "Breda",
-
-        // emailAdress: "test@server.com",
-        // password: "secret",
+        emailAdress: "test@server.com",
+        password: "Testing193!",
 
       }
       chai.request(server)
@@ -62,21 +61,20 @@ describe('Manage users /api/user', () => {
           res.body.should.be.an('object');
           let { status, message } = res.body;
           status.should.equals(400)
-          message.should.be.a('string').that.equals('Input must be valid');
+          message.should.be.a('string').that.equals('firstName must be a string');
           done();
         });
     });
 
 
-
-    it.skip('TC-201-2 Niet-valide emailadres', (done) => {
+    it('TC-201-2 Niet-valide emailadres', (done) => {
       let user = {
         firstName: "John",
         lastName: "Test",
         street: "Teststraat",
         city: "Breda",
         emailAdress: "fakeEmail",
-        password: "secret"
+        password: "Testing193!"
       }
       chai.request(server)
         .post('/api/user')
@@ -85,14 +83,14 @@ describe('Manage users /api/user', () => {
           res.body.should.be.an('object');
           let { status, message } = res.body;
           status.should.equals(400);
-          message.should.be.a('string').that.equals('Input must be valid');
+          message.should.be.a('string').that.equals('Email must be valid');
           done();
         })
     });
 
 
 
-    it.skip('TC-201-3  Niet-valide wachtwoord', (done) => {
+    it('TC-201-3  Niet-valide wachtwoord', (done) => {
       let user = {
         firstName: "John",
         lastName: "Test",
@@ -108,20 +106,21 @@ describe('Manage users /api/user', () => {
           res.body.should.be.an('object');
           let { status, message } = res.body;
           status.should.equals(400)
-          message.should.be.a('string').that.equals('Input must be valid');
+          message.should.be.a('string').that.equals('Password must be valid');
           done();
         });
     });
 
-    it.skip('TC-201-4  Gebruiker bestaat al', (done) => { //not working jet end in index.js with error 401
+    it('TC-201-4  Gebruiker bestaat al', (done) => { //not working jet end in index.js with error 401
       let user = {
         firstName: "John",
         lastName: "Doe",
         street: "Lovensdijkstraat",
         city: "Breda",
         emailAdress: "johndoe@server.com",
-        password: "secret",
+        password: "Testing193!",
       }
+     
       chai.request(server)
         .post('/api/user')
         .send(user)
@@ -136,13 +135,13 @@ describe('Manage users /api/user', () => {
 
     
 
-    it.skip('TC-201-5  Gebruiker succesvol geregistreerd', (done) => {
+    it('TC-201-5  Gebruiker succesvol geregistreerd', (done) => {
       let user = {
         firstName: "Johnny",
         lastName: "Tester",
-        street: "Teststraat 15",
+        street: "Teststraat",
         city: "Breda",
-        emailAdress: "johnny@server.com",
+        emailAdress: "johnny1@server.com",
         password: "Secret123!",
       }
       chai.request(server)
@@ -150,8 +149,8 @@ describe('Manage users /api/user', () => {
         .send(user)
         .end((err, res) => {
           res.body.should.be.an('object');
-          let { status, result } = res.body;
-          status.should.equals(400)
+          let { status, /*result*/ } = res.body;
+          status.should.equals(201)
           // result.should.be.a('array');
           done();
         });
@@ -160,7 +159,7 @@ describe('Manage users /api/user', () => {
 
 
   describe('UC-202 get all users', () => {
-    it('TC-202-1 Toon nul gebruikers', (done) => {
+    it.skip('TC-202-1 Toon nul gebruikers', (done) => {
       chai.request(server)
         .get('/api/user')
         .end((err, res) => {

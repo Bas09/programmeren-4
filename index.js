@@ -1,14 +1,13 @@
 const express = require("express");
-const app = express();
-require("dotenv").config();
-
-const port = process.env.PORT;
-const bodyParser = require("body-parser");
-
 const userRoutes = require("./src/routes/user.routes");
 // const mealRoutes = require("./src/routes/meal.routes");
 // const authRoutes = require("./src/routes/authentication.routes");
+const dbconnection = require("./src/database/dbconnection");
+const logger = require('./src/config/config').logger;
+require("dotenv").config();
 
+const port = process.env.PORT;
+const app = express();
 app.use(express.json());
 
 app.all("*", (req, res, next) => {
@@ -16,14 +15,6 @@ app.all("*", (req, res, next) => {
     console.log(`Method ${method} has been called`);
     next();
 });
-
-// app.get("/", (req, res) => {
-//     res.status(200).json({
-//         status: 200,
-//         result: "Share-a-meal app",
-//     });
-// });
-
 
 app.use("/api", userRoutes);
 // app.use("/api", mealRoutes);
@@ -36,12 +27,30 @@ app.all("*", (req, res) => {
     });
 });
 
+// app.use((err, req, res, next) => {
+//     logger.debug('Error handler called.')
+//     res.status(500).json({
+//         statusCode: 500,
+//         message: err.toString(),
+//     })
+// })
+
 app.use((err, req, res, next) => {
-  res.status(err.status).json(err);
-});
+    res.status(err.status).json(err);
+  });
 
 app.listen(port, () => {
     console.log(`app is listening on http://localhost:${port}`);
 });
+
+process.on('SIGINT', () => {
+    logger.debug('SIGINT signal received: closing HTTP server')
+    dbconnection.end((err) => {
+        logger.debug('Database connection closed')
+    })
+    app.close(() => {
+        logger.debug('HTTP server closed')
+    })
+})
 
 module.exports = app;
