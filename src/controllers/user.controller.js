@@ -69,45 +69,46 @@ let controller = {
 
 
 
-    // UC-202 get all users
+    //UC-202 get all users
 
-    getAll: (req, res, next) => {
-        let query = "SELECT * FROM user";
-        let { firstName, isActive } = req.query;
-
-        if (isActive || firstName) {
-            query += " WHERE ";
-            if (firstName) {
-                query += "firstName LIKE '%${firstName}%'";
-            }
-
-            if (isActive && firstName) {
-                query += " AND ";
-            }
-
-            if (isActive) {
-                query += "isActive = ${isActive}";
-            }
+   
+    
+    getAll: (req, res) => {
+        let { name, isActive } = req.query;
+        let query = 'SELECT * FROM user';
+        //logger.info('Getting all users');
+    
+        if (name || isActive) {
+          query += ' WHERE ';
+          if (name) {
+            query += `firstName LIKE "%${name}%"`;
+          }
+    
+          if (name && isActive) {
+            query += ' AND ';
+          }
+    
+          if (isActive) {
+            query += `isActive = ${isActive}`;
+          }
         }
-
-
+    
+        query += ';';
+    
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err; // not connected!
-
-            // Use the connection
-            connection.query(query, function (error, results, fields) {
-                // When done with the connection, release it.
-                connection.release();
-
-                // Handle error after the release.
-                if (error) throw error;
-                res.status(200).json({
-                    status: 200,
-                    result: results
-                });
+          if (err) throw err;
+    
+          connection.query(query, function (error, results, fields) {
+            connection.release();
+            if (error) throw error;
+    
+            res.status(200).json({
+              status: 200,
+              result: results
             });
+          });
         });
-    },
+      },
 
     // UC-203 Request your personal user profile
 

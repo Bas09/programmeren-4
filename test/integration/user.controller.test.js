@@ -17,7 +17,7 @@ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
 const INSERT_USER =
   'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
-  '(1, "John", "Doe", "johndoe@server.com", "secret", "Lovensdijkstraat", "Breda");'
+  '(1, "John", "Doe", "johndoe@server.com", "secret", "Lovensdijkstraat", "Breda") , (2, "Henk", "Doe", "Henk@server.com", "secret", "Lovensdijkstraat", "Breda");'
 
 
 
@@ -159,18 +159,104 @@ describe('Manage users /api/user', () => {
 
 
   describe('UC-202 get all users', () => {
-    it.skip('TC-202-1 Toon nul gebruikers', (done) => {
+    it('TC-202-1 Toon nul gebruikers', (done) => {
+      dbconnection.getConnection(function (err, connection) {
+        if (err) throw err
+        connection.query(CLEAR_DB, function (error, results, fields) {
+            connection.release()
+            if (error) throw error
+          }
+        )
+      })
       chai.request(server)
-        .get('/api/user')
+        .get('/api/user?name=onbeked')
         .end((err, res) => {
-          res.body.should.be.an('object');
+          res.should.be.an('object');
           let { status, result } = res.body;
           status.should.equals(200)
           result.should.be.a('array');
-          // result.should.be.equals(1);
+          result.length.should.be.equals(0);
+          //done();
+        });
+
+      dbconnection.getConnection(function (err, connection) {
+        if (err) throw err 
+          connection.query(INSERT_USER, function (error, results, fields) {
+            connection.release()
+            if (error) throw error
+            done()
+          }
+        )
+      })
+    });
+
+    it('TC-202-2 Toon twee gebruikers', (done) => {
+      chai.request(server)
+        .get('/api/user?name=John')
+        .end((err, res) => {
+          res.should.be.an('object');
+          let { status, result } = res.body;
+          status.should.equals(200)
+          result.should.be.a('array');
+          result.length.should.be.equals(1);
           done();
         });
     });
+
+    it('TC-202-3 Toon gebruikers met zoekterm op niet-bestaande naam', (done) => {
+      chai.request(server)
+        .get('/api/user?name=onbekend')
+        .end((err, res) => {
+          res.should.be.an('object');
+          let { status, result } = res.body;
+          status.should.equals(200)
+          result.should.be.a('array');
+          result.length.should.be.equals(0);
+          done();
+        });
+    });
+
+    it('TC-202-4 Toon gebruikers met gebruik van de zoekterm op het veld isActive = false', (done) => {
+      chai.request(server)
+        .get('/api/user?isActive=false')
+        .end((err, res) => {
+          res.should.be.an('object');
+          let { status, result } = res.body;
+          status.should.equals(200)
+          result.should.be.a('array');
+          result.length.should.be.equals(0);
+          done();
+        });
+    });
+
+    it('TC-202-5 Toon gebruikers met gebruik van de zoekterm op het veld isActive = true', (done) => {
+      chai.request(server)
+        .get('/api/user?isActive=true')
+        .end((err, res) => {
+          res.should.be.an('object');
+          let { status, result } = res.body;
+          status.should.equals(200)
+          result.should.be.a('array');
+          result.length.should.be.equals(2);
+          done();
+        });
+    });
+
+    it('TC-202-5 Toon gebruikers met zoekterm op bestaande naam', (done) => {
+      chai.request(server)
+        .get('/api/user?name=John')
+        .end((err, res) => {
+          res.should.be.an('object');
+          let { status, result } = res.body;
+          status.should.equals(200)
+          result.should.be.a('array');
+          result.length.should.be.equals(1);
+          done();
+        });
+    });
+
+
+  });
   });
 
   // describe('UC-204 get single user by id', () => {
@@ -178,6 +264,6 @@ describe('Manage users /api/user', () => {
       
   //   })
   // })
-});
+
 
 
