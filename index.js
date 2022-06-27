@@ -1,7 +1,9 @@
 const express = require("express");
 const userRoutes = require("./src/routes/user.routes");
+const authRoutes = require("./src/routes/auth.routes");
 // const mealRoutes = require("./src/routes/meal.routes");
-// const authRoutes = require("./src/routes/authentication.routes");
+
+
 const dbconnection = require("./src/database/dbconnection");
 const logger = require('./src/config/config').logger;
 require("dotenv").config();
@@ -17,8 +19,9 @@ app.all("*", (req, res, next) => {
 });
 
 app.use("/api", userRoutes);
+app.use("/api", authRoutes);
 // app.use("/api", mealRoutes);
-// app.use("/api", authRoutes);
+
 
 app.all("*", (req, res) => {
     res.status(401).json({
@@ -27,17 +30,18 @@ app.all("*", (req, res) => {
     });
 });
 
-// app.use((err, req, res, next) => {
-//     logger.debug('Error handler called.')
-//     res.status(500).json({
-//         statusCode: 500,
-//         message: err.toString(),
-//     })
-// })
-
 app.use((err, req, res, next) => {
-    res.status(err.status).json(err);
-  });
+    logger.debug('Error handler called.' + err.toString())
+    res.status(500).json({
+        statusCode: 500,
+        message: err.toString(),
+    })
+})
+
+
+// app.use((err, req, res, next) => {
+//     res.status(err.status).json(err);
+//   });
 
 app.listen(port, () => {
     console.log(`app is listening on http://localhost:${port}`);
