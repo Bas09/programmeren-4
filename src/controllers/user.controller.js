@@ -270,9 +270,9 @@ let controller = {
                             connection.query(
                                 `DELETE FROM user WHERE id = ?; SELECT * FROM user;`, [deleteId],
                                 function (error, results, fields) {
-                                    logger.info('2 ', deleteId);
+                 
                                     connection.release();
-                                    logger.info('3 ', deleteId);
+                  
                                     if (error) throw error;
 
                                     if (results[0].affectedRows > 0) {

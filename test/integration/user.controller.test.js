@@ -546,6 +546,20 @@ describe('Manage users /api/user', () => {
         });
     });
 
+
+
+    it('TC-206-4 User deleted succesfully', (done) => {
+      chai.request(server)
+        .delete('/api/user/1')
+        .set('Authorization', `Bearer ${generatedToken}`)
+        .end((err, res) => {
+          let { status, result } = res.body;
+          status.should.equals(200);
+          result.should.be.a("array");
+          done();
+        });
+    });
+
     after((done) => {
       dbconnection.getConnection(function (err, connection) {
         if (err) throw err // not connected!
@@ -565,18 +579,6 @@ describe('Manage users /api/user', () => {
         )
       })
     })
-
-    it('TC-206-4 User deleted succesfully', (done) => {
-      chai.request(server)
-        .delete('/api/user/1')
-        .set('Authorization', `Bearer ${generatedToken}`)
-        .end((err, res) => {
-          let { status, result } = res.body;
-          status.should.equals(200);
-          result.should.be.a("array");
-          done();
-        });
-    });
 
   });
 
