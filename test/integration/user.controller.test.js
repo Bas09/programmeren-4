@@ -163,18 +163,25 @@ describe('Manage users /api/user', () => {
   });
 
   // create token for test cases that require authorization
-  console.log("generating token")
-  let user = {
-    emailAdress: "johndoe@server.com",
-    password: "Testing193!",
-  }
-  chai.request(server)
-    .post('/api/auth/login')
-    .send(user)
-    .end((err, res) => {
-      let { result } = res.body;
-      generatedToken = result.token;
-    });
+
+  before((done) => {
+    console.log("generating token")
+    let user = {
+      emailAdress: "johndoe@server.com",
+      password: "Testing193!",
+    }
+    chai.request(server)
+      .post('/api/auth/login')
+      .send(user)
+      .end((err, res) => {
+        let { result } = res.body;
+        generatedToken = result.token;
+      });
+      done();
+  })
+
+
+
 
 
   describe('UC-202 get all users', () => {
