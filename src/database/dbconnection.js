@@ -3,7 +3,7 @@ const logger = require('../config/config').logger
 require('dotenv').config()
 
 const dbConfig = {
-    connectionLimit: 10,
+    connectionLimit: 100,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
