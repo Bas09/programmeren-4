@@ -5,7 +5,6 @@ require('dotenv').config()
 const dbConfig = {
     connectionLimit: 100,
     waitForConnections: true,
-    connectionLimit: 10,
     queueLimit: 0,
     multipleStatements: true,
     host: process.env.DB_HOST,
