@@ -1,7 +1,7 @@
 const express = require("express");
 const userRoutes = require("./src/routes/user.routes");
 const authRoutes = require("./src/routes/auth.routes");
-// const mealRoutes = require("./src/routes/meal.routes");
+const mealRoutes = require("./src/routes/meal.routes");
 
 
 const dbconnection = require("./src/database/dbconnection");
@@ -20,7 +20,7 @@ app.all("*", (req, res, next) => {
 
 app.use("/api", userRoutes);
 app.use("/api", authRoutes);
-// app.use("/api", mealRoutes);
+app.use("/api", mealRoutes);
 
 
 app.all("*", (req, res) => {
@@ -38,10 +38,6 @@ app.use((err, req, res, next) => {
     })
 })
 
-
-// app.use((err, req, res, next) => {
-//     res.status(err.status).json(err);
-//   });
 
 app.listen(port, () => {
     console.log(`app is listening on http://localhost:${port}`);
