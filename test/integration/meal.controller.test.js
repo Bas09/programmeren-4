@@ -10,9 +10,6 @@ const dbconnection = require('../../src/database/dbconnection');
 const jwt = require('jsonwebtoken');
 const { jwtSecretKey, logger } = require('../../src/config/config');
 
-let generatedToken = '';
-
-
 chai.should();
 chai.expect();
 chai.use(chaiHttp);
@@ -50,23 +47,6 @@ describe('Manage meals /api/meal', () => {
         })
     })
 
-    before((done) => {
-        console.log("generating token")
-        let user = {
-            emailAdress: "johndoe@server.com",
-            password: "Testing193!",
-        }
-        chai.request(server)
-            .post('/api/auth/login')
-            .send(user)
-            .end((err, res) => {
-                let { result } = res.body;
-                generatedToken = result.token;
-                done();
-            });
-       
-    })
-
     describe('UC-301 Create meal', () => {
 
         it('TC-301-1 Mandatory field is missing', (done) => {
@@ -85,7 +65,7 @@ describe('Manage meals /api/meal', () => {
             }
             chai.request(server)
                 .post('/api/meal')
-                .set('Authorization', `Bearer ${generatedToken}`)
+                .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
                 .send(meal)
                 .end((err, res) => {
                     res.body.should.be.an('object');
@@ -112,7 +92,7 @@ describe('Manage meals /api/meal', () => {
             }
             chai.request(server)
                 .post('/api/meal')
-                //.set('Authorization', `Bearer ${generatedToken}`) authorization missing
+                //.set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey)) authorization missing
                 .send(meal)
                 .end((err, res) => {
                     res.body.should.be.an('object');
@@ -139,7 +119,7 @@ describe('Manage meals /api/meal', () => {
             }
             chai.request(server)
                 .post('/api/meal')
-                .set('Authorization', `Bearer ${generatedToken}`)
+                .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
                 .send(meal)
                 .end((err, res) => {
                     res.body.should.be.an('object');
@@ -348,7 +328,7 @@ describe('Manage meals /api/meal', () => {
         it('TC-305-2 User not logged in', (done) => {
           chai.request(server)
             .delete('/api/meal/2')
-            //.set('authorization','Bearer ' + jwt.sign({ userId: 2 }, jwtSecretKey))
+            //.set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
             .end((err, res) => {
               res.should.be.an('object');
               let { status, message } = res.body;
@@ -376,7 +356,7 @@ describe('Manage meals /api/meal', () => {
         it('TC-305-4 Meal does not exist', (done) => {
           chai.request(server)
             .delete('/api/meal/9999') // meal with this id does not exist
-            .set('authorization','Bearer ' + jwt.sign({ userId: 2 }, jwtSecretKey))
+            .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
             .end((err, res) => {
               let { status, message } = res.body;
               status.should.equals(404);
@@ -400,10 +380,4 @@ describe('Manage meals /api/meal', () => {
     
  
       });
-
-
-
-
-
-
 });

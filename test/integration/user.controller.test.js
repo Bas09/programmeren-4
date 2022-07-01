@@ -8,6 +8,9 @@ const dbconnection = require('../../src/database/dbconnection');
 
 let generatedToken = '';
 
+const jwt = require('jsonwebtoken');
+const { jwtSecretKey, logger } = require('../../src/config/config');
+
 
 chai.should();
 chai.expect();
@@ -93,7 +96,6 @@ describe('Manage users /api/user', () => {
     });
 
 
-
     it('TC-201-3  Non-valid password', (done) => {
       let user = {
         firstName: "John",
@@ -138,7 +140,6 @@ describe('Manage users /api/user', () => {
     });
 
 
-
     it('TC-201-5  User successfully registered', (done) => {
       let user = {
         id: "87979",
@@ -162,27 +163,6 @@ describe('Manage users /api/user', () => {
     });
   });
 
-  // create token for test cases that require authorization
-
-  before((done) => {
-    console.log("generating token")
-    let user = {
-      emailAdress: "johndoe@server.com",
-      password: "Testing193!",
-    }
-    chai.request(server)
-      .post('/api/auth/login')
-      .send(user)
-      .end((err, res) => {
-        let { result } = res.body;
-        generatedToken = result.token;
-      });
-      done();
-  })
-
-
-
-
 
   describe('UC-202 get all users', () => {
     it('TC-202-1 Show zero users', (done) => {
@@ -196,7 +176,7 @@ describe('Manage users /api/user', () => {
       })
       chai.request(server)
         .get('/api/user?name=tester')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, result } = res.body;
@@ -219,7 +199,7 @@ describe('Manage users /api/user', () => {
     it('TC-202-2 Show two users', (done) => {
       chai.request(server)
         .get('/api/user?name=John')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, result } = res.body;
@@ -233,7 +213,7 @@ describe('Manage users /api/user', () => {
     it('TC-202-3 Show users with search term on non-existent name', (done) => {
       chai.request(server)
         .get('/api/user?name=onbekend')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, result } = res.body;
@@ -247,7 +227,7 @@ describe('Manage users /api/user', () => {
     it('TC-202-4 Show users using the search term isActive = false', (done) => {
       chai.request(server)
         .get('/api/user?isActive=false')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, result } = res.body;
@@ -261,7 +241,7 @@ describe('Manage users /api/user', () => {
     it('TC-202-5 Show users using the search term isActive = true', (done) => {
       chai.request(server)
         .get('/api/user?isActive=true')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, result } = res.body;
@@ -275,7 +255,7 @@ describe('Manage users /api/user', () => {
     it('TC-202-6 Show users with search term on existing name', (done) => {
       chai.request(server)
         .get('/api/user?name=John')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, result } = res.body;
@@ -289,12 +269,11 @@ describe('Manage users /api/user', () => {
 
   });
 
-
   describe('UC-203 Request user profile', () => {
     it('TC-203-1 Invalid token', (done) => {
       chai.request(server)
         .get('/api/user/profile')
-        .set('Authorization', `Bearer ${generatedToken + 'invalid'}`) // invalid token
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey + 'invalid')) // invalid token 
         .end((err, res) => {
           res.should.be.an('object');
           let { status, message } = res.body;
@@ -307,7 +286,7 @@ describe('Manage users /api/user', () => {
     it('TC-203-2 Valid token and user exists.', (done) => {
       chai.request(server)
         .get('/api/user/profile')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, result } = res.body;
@@ -331,7 +310,7 @@ describe('Manage users /api/user', () => {
     it('TC-204-1 Invalid token', (done) => {
       chai.request(server)
         .get('/api/user/1')
-        .set('Authorization', `Bearer ${generatedToken + 'invalid'}`) // invalid token
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey + "invalid")) // invalid token
         .end((err, res) => {
           res.should.be.an('object');
           let { status, message } = res.body;
@@ -344,7 +323,7 @@ describe('Manage users /api/user', () => {
     it('TC-204-2 User id does not exist', (done) => {
       chai.request(server)
         .get('/api/user/53874') // user with this id does not exist
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, message } = res.body;
@@ -357,7 +336,7 @@ describe('Manage users /api/user', () => {
     it('TC-204-3 User id does exist', (done) => {
       chai.request(server)
         .get('/api/user/1')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, result } = res.body;
@@ -391,7 +370,7 @@ describe('Manage users /api/user', () => {
       }
       chai.request(server)
         .put('/api/user/1')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .send(user)
         .end((err, res) => {
           res.should.be.an('object');
@@ -415,7 +394,7 @@ describe('Manage users /api/user', () => {
       }
       chai.request(server)
         .put('/api/user/1')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .send(user)
         .end((err, res) => {
           res.should.be.an('object');
@@ -439,7 +418,7 @@ describe('Manage users /api/user', () => {
       }
       chai.request(server)
         .put('/api/user/0') // user with this id does not exist
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .send(user)
         .end((err, res) => {
           res.should.be.an('object');
@@ -463,7 +442,7 @@ describe('Manage users /api/user', () => {
       }
       chai.request(server)
         .put('/api/user/1')
-        //.set('Authorization', `Bearer ${generatedToken}`) authorization missing
+        //.set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey)) authorization missing
         .send(user)
         .end((err, res) => {
           res.should.be.an('object');
@@ -488,7 +467,7 @@ describe('Manage users /api/user', () => {
 
       chai.request(server)
         .put('/api/user/1')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .send(user)
         .end((err, res) => {
           let { status, result } = res.body;
@@ -510,7 +489,7 @@ describe('Manage users /api/user', () => {
     it('TC-206-1 User does not exist', (done) => {
       chai.request(server)
         .delete('/api/user/9859') // user with this id does not exist
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, message } = res.body;
@@ -523,7 +502,7 @@ describe('Manage users /api/user', () => {
     it('TC-206-2 User not logged in', (done) => {
       chai.request(server)
         .delete('/api/user/1')
-        //.set('Authorization', `Bearer ${generatedToken}`) 
+        //.set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey)) 
         .end((err, res) => {
           res.should.be.an('object');
           let { status, message } = res.body;
@@ -536,7 +515,7 @@ describe('Manage users /api/user', () => {
     it('TC-206-3 Actor is not owner', (done) => {
       chai.request(server)
         .delete('/api/user/3')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
           let { status, message } = res.body;
@@ -546,12 +525,10 @@ describe('Manage users /api/user', () => {
         });
     });
 
-
-
     it('TC-206-4 User deleted succesfully', (done) => {
       chai.request(server)
         .delete('/api/user/1')
-        .set('Authorization', `Bearer ${generatedToken}`)
+        .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           let { status, result } = res.body;
           status.should.equals(200);
@@ -563,26 +540,19 @@ describe('Manage users /api/user', () => {
     after((done) => {
       dbconnection.getConnection(function (err, connection) {
         if (err) throw err // not connected!
-
         // Use the connection
         connection.query(
           CLEAR_DB + INSERT_USER,
           function (error, results, fields) {
             // When done with the connection, release it.
             connection.release()
-
             if (error) throw error
-
-
             done()
           }
         )
       })
     })
-
   });
-
-
 });
 
 
