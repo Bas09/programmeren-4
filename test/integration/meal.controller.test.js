@@ -25,10 +25,13 @@ const INSERT_USER =
     '(1, "John", "Doe", "johndoe@server.com", "Testing193!", "Lovensdijkstraat", "Breda") , (2, "Henk", "Doe", "Henk@server.com", "Testing193!", "Lovensdijkstraat", "Breda") , (3, "John", "Doe", "johndoe1@server.com", "Testing193!", "Lovensdijkstraat", "Breda");'
 
 
-const INSERT_MEAL = `INSERT INTO meal (id, isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, cookId, name, description) 
-    VALUES (1, 1, 1, 1, 1, '2022-05-20 06:36:27', 6, 6.75, 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg', 1, 'Spaghetti Bolognese', 'Dé pastaklassieker bij uitstek.', 'gluten,lactose');
-    VALUES (2, 0, 0, 0, 0, '2022-06-20 06:36:27', 7, 7.75, 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg', 2, 'Spaghetti Bolognese 2', 'Dé pastaklassieker bij uitstek 2., 'gluten,lactose'')`;
 
+     const INSERT_MEAL =
+     'INSERT INTO `meal` VALUES' +
+     '(1,1,1,1,1,"2022-03-22 17:35:00",4,12.75,"https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",1,"2022-02-26 18:12:40.048998","2022-04-26 12:33:51.000000","Pasta Bolognese met tomaat, spekjes en kaas","Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!","gluten,lactose"),' +
+     '(2,0,0,0,0,"2022-03-22 17:35:00",4,12.75,"https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",2,"2022-02-26 18:12:40.048998","2022-04-26 12:33:51.000000","Pasta Bolognese met tomaat, spekjes en kaas","Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!","gluten,lactose");'
+   
+     
 describe('Manage meals /api/meal', () => {
 
     beforeEach((done) => {
