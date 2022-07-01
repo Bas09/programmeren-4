@@ -207,7 +207,7 @@ describe('Manage meals /api/meal', () => {
         it('TC-305-2 User not logged in', (done) => {
           chai.request(server)
             .delete('/api/meal/2')
-            //.set('Authorization', `Bearer ${generatedToken}`) 
+            //.set('authorization','Bearer ' + jwt.sign({ userId: 2 }, jwtSecretKey))
             .end((err, res) => {
               res.should.be.an('object');
               let { status, message } = res.body;
@@ -217,7 +217,7 @@ describe('Manage meals /api/meal', () => {
             });
         });
     
-        it.only('TC-305-3 Actor is not owner', (done) => {
+        it('TC-305-3 Actor is not owner', (done) => {
           chai.request(server)
             .delete('/api/meal/1')
             .set('authorization','Bearer ' + jwt.sign({ userId: 2 }, jwtSecretKey))
@@ -232,20 +232,32 @@ describe('Manage meals /api/meal', () => {
     
     
     
-        it('TC-206-4 User deleted succesfully', (done) => {
+        it('TC-305-4 Meal does not exist', (done) => {
           chai.request(server)
-            .delete('/api/user/1')
-            .set('Authorization', `Bearer ${generatedToken}`)
+            .delete('/api/meal/9999') // meal with this id does not exist
+            .set('authorization','Bearer ' + jwt.sign({ userId: 2 }, jwtSecretKey))
             .end((err, res) => {
-              let { status, result } = res.body;
-              status.should.equals(200);
-              result.should.be.a("array");
+              let { status, message } = res.body;
+              status.should.equals(404);
+              message.should.be.a('string').that.equals('meal does not exist');
               done();
             });
         });
+
+        it('TC-305-5 Meal successfully removed', (done) => {
+            chai.request(server)
+              .delete('/api/meal/1')
+              .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
+              .end((err, res) => {
+                res.should.be.an('object');
+                let { status, result } = res.body;
+                status.should.equals(200)
+                result.should.be.a('array');
+                done();
+              });
+          });
     
  
-    
       });
 
 

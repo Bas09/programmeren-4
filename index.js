@@ -39,10 +39,6 @@ app.use((err, req, res, next) => {
 })
 
 
-// app.use((err, req, res, next) => {
-//     res.status(err.status).json(err);
-//   });
-
 app.listen(port, () => {
     console.log(`app is listening on http://localhost:${port}`);
 });
