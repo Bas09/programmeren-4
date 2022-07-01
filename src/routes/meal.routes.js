@@ -8,7 +8,7 @@ const mealController = require("../controllers/meal.controller");
 router.post("/meal", authController.validateToken, mealController.validateMeal, mealController.addMeal);
 
 // update meal
-router.put("/meal/:mealId", authController.validateToken, mealController.validateUpdateMeal, mealController.updateMeal);
+router.put("/meal/:mealId", authController.validateToken, mealController.validateMeal, mealController.updateMeal);
 
 // get all meals uc-303
 router.get("/meal", mealController.getAllMeals);

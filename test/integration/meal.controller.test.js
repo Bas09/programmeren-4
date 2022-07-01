@@ -152,6 +152,147 @@ describe('Manage meals /api/meal', () => {
         });
     });
 
+    describe('UC-302 Update meal', () => {
+        it('TC-302-1 mandatory field missing', (done) => {
+        let meal = {
+            dateTime: '2022-03-22T16:35:00.000Z',
+            maxAmountOfParticipants: 4,
+            //price: 12.75, 
+            imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
+            name: 'Pasta Bolognese met tomaat, spekjes en kaas',
+            description:'Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!', 
+            isActive: true,
+            isVega: true,
+            isVegan: true,
+            isToTakeHome: true,
+            allergenes: ['gluten', 'lactose']
+        }
+        chai.request(server)
+            .put('/api/meal/1')
+            .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
+            .send(meal)
+            .end((err, res) => {
+                res.body.should.be.an('object');
+                let { status, message } = res.body;
+                status.should.equals(400);
+                message.should.be.a('string').that.equals('price must be a number');
+                done();
+            });
+    });
+
+    it('TC-302-2 not logged in', (done) => {
+        let meal = {
+            dateTime: '2022-03-22T16:35:00.000Z',
+            maxAmountOfParticipants: 4,
+            price: 12.75, 
+            imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
+            name: 'Pasta Bolognese met tomaat, spekjes en kaas',
+            description:'Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!', 
+            isActive: true,
+            isVega: true,
+            isVegan: true,
+            isToTakeHome: true,
+            allergenes: ['gluten', 'lactose']
+        }
+        chai.request(server)
+            .put('/api/meal/1')
+           // .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
+            .send(meal)
+            .end((err, res) => {
+                res.body.should.be.an('object');
+                let { status, message } = res.body;
+                status.should.equals(401);
+                message.should.be.a('string').that.equals('Authorization header missing!');
+                done();
+            });
+    });
+
+    it('TC-302-3 Not the owner of the data', (done) => {
+        let meal = {
+            dateTime: '2022-03-22T16:35:00.000Z',
+            maxAmountOfParticipants: 4,
+            price: 12.75, 
+            imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
+            name: 'Pasta Bolognese met tomaat, spekjes en kaas',
+            description:'Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!', 
+            isActive: true,
+            isVega: true,
+            isVegan: true,
+            isToTakeHome: true,
+            allergenes: ['gluten', 'lactose']
+        }
+        chai.request(server)
+            .put('/api/meal/1')
+            .set('authorization','Bearer ' + jwt.sign({ userId: 2 }, jwtSecretKey))
+            .send(meal)
+            .end((err, res) => {
+                res.body.should.be.an('object');
+                let { status, message } = res.body;
+                status.should.equals(403);
+                message.should.be.a('string').that.equals('User not allowed to delete this meal');
+                done();
+            });
+    });
+
+    it('TC-302-4 Meal does not exist', (done) => {
+        let meal = {
+            dateTime: '2022-03-22T16:35:00.000Z',
+            maxAmountOfParticipants: 4,
+            price: 12.75, 
+            imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
+            name: 'Pasta Bolognese met tomaat, spekjes en kaas',
+            description:'Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!', 
+            isActive: true,
+            isVega: true,
+            isVegan: true,
+            isToTakeHome: true,
+            allergenes: ['gluten', 'lactose']
+        }
+        chai.request(server)
+            .put('/api/meal/3333') // meal id does not exist
+            .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
+            .send(meal)
+            .end((err, res) => {
+                res.body.should.be.an('object');
+                let { status, message } = res.body;
+                status.should.equals(404);
+                message.should.be.a('string').that.equals('meal does not exist');
+                done();
+            });
+    });
+
+    it('TC-302-5 Meal changed successfully', (done) => {
+        let meal = {
+            dateTime: '2022-03-22T16:35:00.000Z',
+            maxAmountOfParticipants: 4,
+            price: 12.75, 
+            imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
+            name: 'Pasta Bolognese met tomaat, spekjes en kaas',
+            description:'Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!', 
+            isActive: true,
+            isVega: true,
+            isVegan: true,
+            isToTakeHome: true,
+            allergenes: ['gluten', 'lactose']
+        }
+        chai.request(server)
+            .put('/api/meal/1') 
+            .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
+            .send(meal)
+            .end((err, res) => {
+                res.body.should.be.an('object');
+                let { status, result } = res.body;
+                status.should.equals(200);
+                result.should.be.a('array');
+                done();
+            });
+    });
+
+
+    });
+
+
+
     describe('UC-303 Request a list of meals', () => {
         it('TC-303-1 List of meals returned', (done) => {
             chai.request(server)
