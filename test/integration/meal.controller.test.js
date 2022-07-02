@@ -55,7 +55,7 @@ describe('Manage meals /api/meal', () => {
 
         it('TC-301-1 Mandatory field is missing', (done) => {
             let meal = {
-                dateTime: '2022-03-22T16:35:00.000Z',
+                dateTime: '2022-04-26 12:33:51.000000',
                 maxAmountOfParticipants: 4,
                 price: 12.75,
                 imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
@@ -82,7 +82,7 @@ describe('Manage meals /api/meal', () => {
 
         it('TC-301-2 Not logged in', (done) => {
             let meal = {
-                dateTime: '2022-03-22T16:35:00.000Z',
+                dateTime: '2022-04-26 12:33:51.000000',
                 maxAmountOfParticipants: 4,
                 price: 12.75,
                 imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
@@ -139,7 +139,7 @@ describe('Manage meals /api/meal', () => {
     describe('UC-302 Update meal', () => {
         it('TC-302-1 mandatory field missing', (done) => {
         let meal = {
-            dateTime: '2022-03-22T16:35:00.000Z',
+            dateTime: '2022-04-26 12:33:51.000000',
             maxAmountOfParticipants: 4,
             //price: 12.75, 
             imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
@@ -166,7 +166,7 @@ describe('Manage meals /api/meal', () => {
 
     it('TC-302-2 not logged in', (done) => {
         let meal = {
-            dateTime: '2022-03-22T16:35:00.000Z',
+            dateTime: '2022-04-26 12:33:51.000000',
             maxAmountOfParticipants: 4,
             price: 12.75, 
             imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
@@ -193,7 +193,7 @@ describe('Manage meals /api/meal', () => {
 
     it('TC-302-3 Not the owner of the data', (done) => {
         let meal = {
-            dateTime: '2022-03-22T16:35:00.000Z',
+            dateTime: '2022-04-26 12:33:51.000000',
             maxAmountOfParticipants: 4,
             price: 12.75, 
             imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
@@ -220,7 +220,7 @@ describe('Manage meals /api/meal', () => {
 
     it('TC-302-4 Meal does not exist', (done) => {
         let meal = {
-            dateTime: '2022-03-22T16:35:00.000Z',
+            dateTime: '2022-04-26 12:33:51.000000',
             maxAmountOfParticipants: 4,
             price: 12.75, 
             imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
@@ -247,7 +247,7 @@ describe('Manage meals /api/meal', () => {
 
     it('TC-302-5 Meal changed successfully', (done) => {
         let meal = {
-            dateTime: '2022-03-22T16:35:00.000Z',
+            dateTime: '2022-04-26 12:33:51.000000',
             maxAmountOfParticipants: 4,
             price: 12.75, 
             imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
