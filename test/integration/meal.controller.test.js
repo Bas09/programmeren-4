@@ -109,18 +109,18 @@ describe('Manage meals /api/meal', () => {
 
         it('TC-301-3 Meal successfully added', (done) => {
             let meal = {
-                dateTime: '2022-03-22T16:35:00.000Z',
-                maxAmountOfParticipants: 4,
-                price: 12.75,
-                imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
-                name: 'Pasta Bolognese met tomaat, spekjes en kaas',
+                name: 'Spaghetti Bolognese',
                 description: 'Een heerlijke klassieker! Altijd goed voor tevreden gesmikkel!',
                 isActive: true,
-                isVega: false,
-                isVegan: false,
+                isVega: true,
+                isVegan: true,
                 isToTakeHome: true,
-                allergenes: ['gluten', 'lactose']
-            }
+                dateTime: '2022-04-26 12:33:51.000000',
+                imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
+                allergenes: ['gluten' ,'lactose'],
+                maxAmountOfParticipants: 4,
+                price: 12.75
+              }
             chai.request(server)
                 .post('/api/meal')
                 .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))

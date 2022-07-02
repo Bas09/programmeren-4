@@ -48,17 +48,25 @@ let controller = {
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err;
 
-            connection.query('INSERT INTO meal SET?; SELECT * FROM meal;',
-                meal,
-                function (error, results, fields) {
-                    connection.release();
-                    if (err) throw error;
+            // connection.query('INSERT INTO meal SET?; SELECT * FROM meal;',
+            //     meal,
+            //     function (error, results, fields) {
+            //         connection.release();
+            //         if (err) throw error;
 
-                    connection.query('INSERT INTO meal_participants_user SET ?;',
-                        { mealId: results[0].insertId, userId: userId },
-                        function (error, results, fields) {
-                            if (error) throw error;
-                        });
+            //         connection.query('INSERT INTO meal_participants_user SET ?;',
+            //             { mealId: results[0].insertId, userId: userId },
+            //             function (error, results, fields) {
+            //                 if (error) throw error;
+            //             });
+
+            connection.query('INSERT INTO meal SET ?; SELECT * FROM meal;', meal, function (error, results, fields) {
+                connection.release();
+                if (error) throw error;
+        
+                connection.query('INSERT INTO meal_participants_user SET ?;', { mealId: results[0].insertId, userId: userId }, function (error, results, fields) {
+                  if (error) throw error;
+                });
 
                     res.status(201).json({
                         status: 201,
