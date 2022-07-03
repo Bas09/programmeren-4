@@ -29,5 +29,4 @@ pool.on('acquire', function (connection) {
 pool.on('release', function (connection) {
     logger.debug('Connection %d released', connection.threadId);
 })
-
 module.exports = pool
