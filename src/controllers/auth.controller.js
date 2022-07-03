@@ -6,6 +6,59 @@ const jwtSecretKey = require('../config/config').jwtSecretKey
 
 
 let controller = {
+    validateLogin(req, res, next) {
+        // Verify that we receive the expected input
+        let user = req.body;
+        const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
+        let { emailAdress, password } = user;
+
+        try {
+            assert.equal(typeof emailAdress, 'string', 'email must be a string.');
+            assert.equal(typeof password, 'string', 'password must be a string.');
+            assert.match(emailAdress, emailRegex, "Email must be valid");
+            assert.match(password, passwordRegex, "Password must be valid");
+            next();
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({
+                status: 400,
+                message: err.message
+            });
+        }
+    },
+
+    validateToken(req, res, next) {
+        logger.info('validateToken called')
+        const authHeader = req.headers.authorization
+        if (!authHeader) {
+            logger.warn('Authorization header missing!')
+            res.status(401).json({
+                status: 401,
+                message: 'Authorization header missing!',
+            })
+        } else {
+            // Strip the word 'Bearer ' from the headervalue
+            const token = authHeader.substring(7, authHeader.length)
+
+            jwt.verify(token, jwtSecretKey, (err, payload) => {
+                if (err) {
+                    logger.warn('Not authorized')
+                    res.status(401).json({
+                        status: 401,
+                        message: 'Not authorized/Invalid token.',
+                      
+                    })
+                }
+                if (payload) {
+                    logger.debug('token is valid', payload)
+                    req.userId = payload.userId
+                    next()
+                }
+            })
+        }
+    },
+
     login(req, res, next) {
         dbconnection.getConnection((err, connection) => {
             if (err) {
@@ -16,7 +69,7 @@ let controller = {
                 })
             }
             if (connection) {
-                // 1. Kijk of deze useraccount bestaat.
+                // 1. Check whether this user account exists.
                 connection.query(
                     'SELECT * FROM `user` WHERE `emailAdress` = ?',
                     [req.body.emailAdress],
@@ -30,7 +83,7 @@ let controller = {
                             })
                         }
                         if (rows) {
-                            // 2. Er was een resultaat, check het password.
+                            // 2. There was a result, check the password.
                             if (
                                 rows &&
                                 rows.length === 1 &&
@@ -75,66 +128,6 @@ let controller = {
                 )
             }
         })
-    },
-
-  
-    validateLogin(req, res, next) {
-        // Verify that we receive the expected input
-        let user = req.body;
-        const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
-        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
-        let { emailAdress, password } = user;
-
-        try {
-            assert.equal(typeof emailAdress, 'string', 'email must be a string.');
-            assert.equal(typeof password, 'string', 'password must be a string.');
-            assert.match(emailAdress, emailRegex, "Email must be valid");
-            assert.match(password, passwordRegex, "Password must be valid");
-            next();
-        } catch (err) {
-            console.log(err);
-            res.status(400).json({
-                status: 400,
-                message: err.message
-            });
-        }
-    },
-
-
-    validateToken(req, res, next) {
-        logger.info('validateToken called')
-        // logger.trace(req.headers)
-        // The headers should contain the authorization-field with value 'Bearer [token]'
-        const authHeader = req.headers.authorization
-        if (!authHeader) {
-            logger.warn('Authorization header missing!')
-            res.status(401).json({
-                status: 401,
-                message: 'Authorization header missing!',
-                //datetime: new Date().toISOString(),
-            })
-        } else {
-            // Strip the word 'Bearer ' from the headervalue
-            const token = authHeader.substring(7, authHeader.length)
-
-            jwt.verify(token, jwtSecretKey, (err, payload) => {
-                if (err) {
-                    logger.warn('Not authorized')
-                    res.status(401).json({
-                        status: 401,
-                        message: 'Not authorized/Invalid token.',
-                       // datetime: new Date().toISOString(),
-                    })
-                }
-                if (payload) {
-                    logger.debug('token is valid', payload)
-                    // User heeft toegang. Voeg UserId uit payload toe aan
-                    // request, voor ieder volgend endpoint.
-                    req.userId = payload.userId
-                    next()
-                }
-            })
-        }
     },
 }
 module.exports = controller;

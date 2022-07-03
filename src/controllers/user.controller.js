@@ -1,18 +1,13 @@
 const assert = require("assert");
-const res = require("express/lib/response");
 const dbconnection = require("../database/dbconnection");
-const Joi = require('joi');
-const { debug } = require("console");
-const { logger } = require("../config/config");
-const { connect } = require("../database/dbconnection");
-
+const logger = require("../config/config").logger;
 
 let controller = {
     validateUser: (req, res, next) => {
         let user = req.body;
         const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
         const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
-        const phoneNumberRegex = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/g;
+        const phoneNumberRegex = /^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
 
         let { firstName, lastName, emailAdress, password, street, city, phoneNumber } = user;
@@ -24,11 +19,11 @@ let controller = {
             assert.equal(typeof password, 'string', 'password must be a string');
             assert.equal(typeof street, 'string', 'street must be a string');
             assert.equal(typeof city, 'string', 'city must be a string');
-            // assert.equal(typeof phoneNumber, 'string', 'phoneNumber must be a string') 
+           // assert.equal(typeof phoneNumber, 'string', 'phoneNumber must be a string') 
 
             assert.match(emailAdress, emailRegex, "Email must be valid");
             assert.match(password, passwordRegex, "Password must be valid");
-            // assert.match(phoneNumber, phoneNumberRegex, "phone number must be valid")
+            assert.match(phoneNumber, phoneNumberRegex, "phone number must be valid")
             next();
         } catch (err) {
             console.log(err);
@@ -107,7 +102,7 @@ let controller = {
     getAll: (req, res) => {
         let { name, isActive } = req.query;
         let query = 'SELECT * FROM user';
-        //logger.info('Getting all users');
+        logger.info('Getting all users');
 
         if (name || isActive) {
             query += ' WHERE ';
@@ -212,7 +207,7 @@ let controller = {
     updateUser: (req, res, next) => {
         let id = req.params.userId
         let { firstName, lastName, emailAdress, password, phoneNumber, street, city } = req.body;
-        // logger.info('Updating user with id: ', id);
+        logger.info('Updating user with id: ', id);
 
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err;
@@ -266,7 +261,7 @@ let controller = {
 
                     if (results.length > 0) {
                         if (userId == deleteId) {
-                            logger.info('1 ', deleteId);
+                        logger.info('1 ', deleteId);
                             connection.query(
                                 `DELETE FROM user WHERE id = ?; SELECT * FROM user;`, [deleteId],
                                 function (error, results, fields) {
@@ -297,6 +292,8 @@ let controller = {
                 });
         });
     },
+
+    
 
 };
 

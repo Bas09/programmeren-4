@@ -44,22 +44,8 @@ let controller = {
         meal.cookId = userId;
         logger.info('Adding meal: ', meal);
 
-
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err;
-
-            // connection.query('INSERT INTO meal SET?; SELECT * FROM meal;',
-            //     meal,
-            //     function (error, results, fields) {
-            //         connection.release();
-            //         if (err) throw error;
-
-            //         connection.query('INSERT INTO meal_participants_user SET ?;',
-            //             { mealId: results[0].insertId, userId: userId },
-            //             function (error, results, fields) {
-            //                 if (error) throw error;
-            //             });
-
             connection.query('INSERT INTO meal SET ?; SELECT * FROM meal;', meal, function (error, results, fields) {
                 connection.release();
                 if (error) throw error;
@@ -77,7 +63,6 @@ let controller = {
     },
 
     // UC-302 update meal
-
     updateMeal: (req, res, next) => {
         let updateMealId = req.params.mealId;
         let userId = req.userId;
@@ -103,7 +88,6 @@ let controller = {
                                     connection.release();
                                     if (error) throw error;
 
-
                                     if (results[0].affectedRows > 0) {
                                         res.status(200).json({
                                             status: 200,
@@ -127,8 +111,6 @@ let controller = {
         });
 
     },
-
-
 
     // UC-303 Get all meals 
     getAllMeals: (req, res, next) => {
@@ -225,7 +207,6 @@ let controller = {
         });
 
     },
-
 }
 module.exports = controller;
 

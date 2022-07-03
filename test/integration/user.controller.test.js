@@ -1,12 +1,13 @@
-// process.env.DB_DATABASE = process.env.DB_DATABASE || 'shareamealtestdb'
+process.env.DB_DATABASE = process.env.DB_DATABASE || 'shareamealtestdb'
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../index');
 
+
 require('dotenv').config()
 const dbconnection = require('../../src/database/dbconnection');
 
-let generatedToken = '';
+
 
 const jwt = require('jsonwebtoken');
 const { jwtSecretKey, logger } = require('../../src/config/config');
@@ -22,7 +23,7 @@ const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
 const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
 
-const INSERT_USER =
+  const INSERT_USER =
   'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
   '(1, "John", "Doe", "johndoe@server.com", "Testing193!", "Lovensdijkstraat", "Breda") , (2, "Henk", "Doe", "Henk@server.com", "Testing193!", "Lovensdijkstraat", "Breda") , (3, "John", "Doe", "johndoe1@server.com", "Testing193!", "Lovensdijkstraat", "Breda");'
 
@@ -59,7 +60,7 @@ describe('Manage users /api/user', () => {
         city: "Breda",
         emailAdress: "test@server.com",
         password: "Testing193!",
-
+        phoneNumber: "0612345678",
       }
       chai.request(server)
         .post('/api/user')
@@ -81,7 +82,8 @@ describe('Manage users /api/user', () => {
         street: "Teststraat",
         city: "Breda",
         emailAdress: "fakeEmail",
-        password: "Testing193!"
+        password: "Testing193!",
+        phoneNumber: "0612345678",
       }
       chai.request(server)
         .post('/api/user')
@@ -104,6 +106,7 @@ describe('Manage users /api/user', () => {
         city: "Breda",
         emailAdress: "test@server.com",
         password: "ab",
+        phoneNumber: "0612345678",
       }
       chai.request(server)
         .post('/api/user')
@@ -125,6 +128,7 @@ describe('Manage users /api/user', () => {
         city: "Breda",
         emailAdress: "johndoe@server.com",
         password: "Testing193!",
+        phoneNumber: "0612345678",
       }
 
       chai.request(server)
@@ -149,6 +153,7 @@ describe('Manage users /api/user', () => {
         city: "Breda",
         emailAdress: "johnny1@server.com",
         password: "Secret123!",
+        phoneNumber: "0612345678",
       }
       chai.request(server)
         .post('/api/user')
