@@ -1,6 +1,6 @@
-const mysql = require('mysql2')
+const mysql = require('mysql2');
 const logger = require('../config/config').logger
-require('dotenv').config()
+require('dotenv').config();
 
 const dbConfig = {
     connectionLimit: 100,
@@ -14,20 +14,20 @@ const dbConfig = {
     database: process.env.DB_DATABASE,
 }
 
-logger.debug(dbConfig)
+logger.debug(dbConfig);
 
-const pool = mysql.createPool(dbConfig)
+const pool = mysql.createPool(dbConfig);
 
 pool.on('connection', function (connection) {
-    logger.debug(`Connected to database '${connection.config.database}'`)
+    logger.debug(`Connected to database '${connection.config.database}'`);
 })
 
 pool.on('acquire', function (connection) {
-    logger.debug('Connection %d acquired', connection.threadId)
+    logger.debug('Connection %d acquired', connection.threadId);
 })
 
 pool.on('release', function (connection) {
-    logger.debug('Connection %d released', connection.threadId)
+    logger.debug('Connection %d released', connection.threadId);
 })
 
 module.exports = pool

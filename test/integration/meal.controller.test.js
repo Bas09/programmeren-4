@@ -36,20 +36,20 @@ describe('Manage meals /api/meal', () => {
 
     beforeEach((done) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err // not connected!
+            if (err) next(err); // not connected!
 
             // Use the connection
             connection.query(
                 CLEAR_DB + INSERT_USER + INSERT_MEAL,
                 function (error, results, fields) {
                     // When done with the connection, release it.
-                    connection.release()
-                    if (error) throw error
-                    done()
+                    connection.release();
+                    if (err) next(err);
+                    done();
                 }
-            )
-        })
-    })
+            );
+        });
+    });
 
     describe('UC-301 Create meal', () => {
 
@@ -381,7 +381,5 @@ describe('Manage meals /api/meal', () => {
                 done();
               });
           });
-    
- 
       });
 });

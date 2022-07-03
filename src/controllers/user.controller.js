@@ -9,7 +9,6 @@ let controller = {
         const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
         const phoneNumberRegex = /^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
-
         let { firstName, lastName, emailAdress, password, street, city, phoneNumber } = user;
 
         try {
@@ -40,7 +39,6 @@ let controller = {
         const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm;
         const phoneNumberRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/
 
-
         let { firstName, lastName, emailAdress, password, street, city, phoneNumber } = user;
 
         try {
@@ -50,11 +48,11 @@ let controller = {
             assert.equal(typeof password, 'string', 'password must be a string');
             assert.equal(typeof street, 'string', 'street must be a string');
             assert.equal(typeof city, 'string', 'city must be a string');
-            assert.equal(typeof phoneNumber, 'string', 'phoneNumber must be a string')
+            assert.equal(typeof phoneNumber, 'string', 'phoneNumber must be a string');
 
             assert.match(emailAdress, emailRegex, "Email must be valid");
             assert.match(password, passwordRegex, "Password must be valid");
-            assert.match(phoneNumber, phoneNumberRegex, "phoneNumber must be valid")
+            assert.match(phoneNumber, phoneNumberRegex, "phoneNumber must be valid");
             next();
         } catch (err) {
             console.log(err);
@@ -71,15 +69,15 @@ let controller = {
         let user = req.body;
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             connection.query("SELECT * FROM user", function (error, results, fields) {
-                if (error) throw error;
+                if (err) next(err);
 
                 if (results.filter(item => item.emailAdress === user.emailAdress).length === 0) {
                     connection.query('INSERT INTO user SET ?; SELECT * FROM user;', user, function (error, results, fields) {
                         connection.release();
-                        if (error) throw error;
+                        if (err) next(err);
 
 
                         res.status(201).json({
@@ -99,7 +97,7 @@ let controller = {
 
 
     //UC-202 get all users
-    getAll: (req, res) => {
+    getAll: (req, res, next) => {
         let { name, isActive } = req.query;
         let query = 'SELECT * FROM user';
         logger.info('Getting all users');
@@ -122,11 +120,11 @@ let controller = {
         query += ';';
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             connection.query(query, function (error, results, fields) {
                 connection.release();
-                if (error) throw error;
+                if (err) next(err);
 
                 res.status(200).json({
                     status: 200,
@@ -142,7 +140,7 @@ let controller = {
         dbconnection.getConnection(function (err, connection) {
             let userId = req.userId;
 
-            if (err) throw err; // not connected!
+            if (err) next(err); // not connected!
 
             // Use the connection
             connection.query("SELECT * FROM user WHERE id = ?;", [userId], function (error, results, fields) {
@@ -157,12 +155,12 @@ let controller = {
                         res.status(200).json({
                             status: 200,
                             result: results[0]
-                        })
+                        });
                     } else {
                         res.status(404).json({
                             status: 404,
                             message: "User not found!"
-                        })
+                        });
                     }
                 }
             });
@@ -175,7 +173,7 @@ let controller = {
         dbconnection.getConnection(function (err, connection) {
             let userId = req.params.userId;
 
-            if (err) throw err; // not connected!
+            if (err) next(err); // not connected!
 
             // Use the connection
             connection.query("SELECT * FROM user WHERE id = ?;", [userId], function (error, results, fields) {
@@ -195,7 +193,7 @@ let controller = {
                         res.status(404).json({
                             status: 404,
                             message: "User not found!"
-                        })
+                        });
                     }
                 }
             });
@@ -210,10 +208,10 @@ let controller = {
         logger.info('Updating user with id: ', id);
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             connection.query('SELECT * FROM user WHERE id = ?;', [id], function (error, results, fields) {
-                if (error) throw error;
+                if (err) next(err);
 
                 console.log(results);
 
@@ -223,10 +221,7 @@ let controller = {
                   SELECT * FROM user WHERE id = ?;`,
                         [firstName, lastName, emailAdress, password, phoneNumber, street, city, id, id], function (error, results, fields) {
                             connection.release();
-                            if (error) throw error;
-
-
-
+                            if (err) next(err);
                             res.status(200).json({
                                 status: 200,
                                 result: results[1][0]
@@ -244,20 +239,19 @@ let controller = {
     },
 
 
-
     // UC-206 Delete user
-    deleteUser: (req, res) => {
+    deleteUser: (req, res, next) => {
         let deleteId = req.params.userId;
         let userId = req.userId;
         logger.info('Deleting user with id: ', deleteId);
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) next(err) // not connected!
+            if (err) next(err); // not connected!
 
             // Use the connection
             connection.query(
                 "SELECT * FROM user WHERE id = ?;", [deleteId], function (error, results, fields) {
-                    if (error) throw error;
+                    if (err) next(err);
 
                     if (results.length > 0) {
                         if (userId == deleteId) {
@@ -268,7 +262,7 @@ let controller = {
                  
                                     connection.release();
                   
-                                    if (error) throw error;
+                                    if (err) next(err);
 
                                     if (results[0].affectedRows > 0) {
                                         res.status(200).json({
@@ -276,7 +270,7 @@ let controller = {
                                             result: results[1]
                                         });
                                     }
-                                })
+                                });
                         } else {
                             res.status(403).json({
                                 status: 403,
@@ -292,9 +286,6 @@ let controller = {
                 });
         });
     },
-
-    
-
 };
 
 module.exports = controller;

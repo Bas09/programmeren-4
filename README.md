@@ -74,7 +74,6 @@ Running Tests
 - MySQL2
 - Chai-HTTP
 - jsonwebtoken
-- Tracer
 
 ## Author
 Bas

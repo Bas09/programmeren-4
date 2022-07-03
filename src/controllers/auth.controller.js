@@ -36,7 +36,7 @@ let controller = {
             res.status(401).json({
                 status: 401,
                 message: 'Authorization header missing!',
-            })
+            });
         } else {
             // Strip the word 'Bearer ' from the headervalue
             const token = authHeader.substring(7, authHeader.length)
@@ -53,9 +53,9 @@ let controller = {
                 if (payload) {
                     logger.debug('token is valid', payload)
                     req.userId = payload.userId
-                    next()
+                    next();
                 }
-            })
+            });
         }
     },
 
@@ -107,25 +107,25 @@ let controller = {
                                         logger.debug(
                                             'User logged in, sending: ',
                                             user, token
-                                        )
+                                        );
                                         res.status(200).json({
                                             status: 200,
                                             result: { ...user, token },
                                           });
                                     }
-                                )
+                                );
                             } else {
                                 logger.info(
                                     'User not found or password invalid'
-                                )
+                                );
                                 res.status(404).json({
                                     status: 404,
                                     message:'User not found or password invalid',
-                                })
+                                });
                             }
                         }
                     }
-                )
+                );
             }
         })
     },

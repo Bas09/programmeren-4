@@ -19,7 +19,4 @@ router.get("/meal/:mealId", mealController.getMealById);
 // delete meal uc-305
 router.delete("/meal/:mealId", authController.validateToken, mealController.deleteMeal);
 
-
-
-
 module.exports = router;

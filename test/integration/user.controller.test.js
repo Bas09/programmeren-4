@@ -32,26 +32,22 @@ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 describe('Manage users /api/user', () => {
   beforeEach((done) => {
     dbconnection.getConnection(function (err, connection) {
-      if (err) throw err // not connected!
+      if (err) next(err); // not connected!
 
       // Use the connection
       connection.query(
         CLEAR_DB + INSERT_USER,
         function (error, results, fields) {
           // When done with the connection, release it.
-          connection.release()
+          connection.release();
+          if (err) next(err);
 
-          if (error) throw error
-
-
-          done()
-        }
-      )
-    })
-  })
+          done();
+        });
+    });
+  });
 
   describe('UC-201 Create user', () => {
-
     it('TC-201-1 Mandatory field is missing', (done) => {
       let user = {
         // firstName: "John", 
@@ -172,13 +168,12 @@ describe('Manage users /api/user', () => {
   describe('UC-202 get all users', () => {
     it('TC-202-1 Show zero users', (done) => {
       dbconnection.getConnection(function (err, connection) {
-        if (err) throw err
+        if (err) next(err);
         connection.query(CLEAR_DB, function (error, results, fields) {
           connection.release()
-          if (error) throw error
-        }
-        )
-      })
+          if (err) next(err);
+        });
+      });
       chai.request(server)
         .get('/api/user?name=tester')
         .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
@@ -191,11 +186,11 @@ describe('Manage users /api/user', () => {
         });
 
       dbconnection.getConnection(function (err, connection) {
-        if (err) throw err
+        if (err) next(err);
         connection.query(INSERT_USER, function (error, results, fields) {
           connection.release()
-          if (error) throw error
-          done()
+          if (err) next(err);
+          done();
         }
         )
       })
@@ -270,8 +265,6 @@ describe('Manage users /api/user', () => {
           done();
         });
     });
-
-
   });
 
   describe('UC-203 Request user profile', () => {
@@ -553,10 +546,9 @@ describe('Manage users /api/user', () => {
             connection.release()
             if (error) throw error
             done()
-          }
-        )
-      })
-    })
+          });
+      });
+    });
   });
 });
 

@@ -2,12 +2,8 @@ process.env.DB_DATABASE = process.env.DB_DATABASE || 'shareamealtestdb'
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../index');
-
 require('dotenv').config()
 const dbconnection = require('../../src/database/dbconnection');
-const { doesNotMatch } = require('assert');
-const { object } = require('joi');
-
 chai.should();
 chai.use(chaiHttp);
 
@@ -25,7 +21,7 @@ const INSERT_USER =
 describe('Manage users /api/user', () => {
     beforeEach((done) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err // not connected!
+            if (err) next(err); // not connected!
 
             // Use the connection
             connection.query(
@@ -33,12 +29,12 @@ describe('Manage users /api/user', () => {
                 function (error, results, fields) {
                     // When done with the connection, release it.
                     connection.release();
-                    if (error) throw error
+                    if (err) next(err);
                     done();
                 }
-            )
-        })
-    })
+            );
+        });
+    });
 
     describe('UC-101 Login', () => {
         it('TC-101-1 Mandatory field is missing', (done) => {
@@ -131,9 +127,8 @@ describe('Manage users /api/user', () => {
                     result.should.have.property('street');
                     result.should.have.property('city');
                     result.should.have.property('token');
-                    
                     done();
                 });
         });
     });
-})
+});

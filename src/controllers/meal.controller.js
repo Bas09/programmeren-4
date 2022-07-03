@@ -45,13 +45,13 @@ let controller = {
         logger.info('Adding meal: ', meal);
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
             connection.query('INSERT INTO meal SET ?; SELECT * FROM meal;', meal, function (error, results, fields) {
                 connection.release();
-                if (error) throw error;
+                if (err) next(err);
         
                 connection.query('INSERT INTO meal_participants_user SET ?;', { mealId: results[0].insertId, userId: userId }, function (error, results, fields) {
-                  if (error) throw error;
+                    if (err) next(err);
                 });
 
                     res.status(201).json({
@@ -71,13 +71,13 @@ let controller = {
         logger.info('Updating meal with id: ', updateMealId);
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw (err) // not connected!
+            if (err) next(err); // not connected!
 
             // Use the connection
             if (userId) {
                 connection.query(
                     'SELECT * FROM meal WHERE id = ?;', [updateMealId], function (error, results, fields) {
-                        if (error) throw error;
+                        if (err) next(err);
 
                         if (results.length > 0) {
                             connection.query(
@@ -86,7 +86,7 @@ let controller = {
                                 [name, description, isToTakeHome, imageUrl, price, isVega, isVegan, isActive, dateTime, maxAmountOfParticipants, stringAllergenes, updateMealId, userId ],
                                 function (error, results, fields) {
                                     connection.release();
-                                    if (error) throw error;
+                                    if (err) next(err);
 
                                     if (results[0].affectedRows > 0) {
                                         res.status(200).json({
@@ -115,13 +115,12 @@ let controller = {
     // UC-303 Get all meals 
     getAllMeals: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             connection.query('SELECT * FROM meal;',
                 function (error, results, fields) {
                     connection.release();
-                    if (err) throw error;
-
+                    if (err) next(err);
 
                     res.status(200).json({
                         status: 200,
@@ -137,11 +136,11 @@ let controller = {
         logger.info('Getting meal by id: ', mealId);
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             connection.query('SELECT * FROM meal WHERE id = ?;', [mealId], function (error, results, fields) {
                 connection.release();
-                if (error) throw error;
+                if (err) next(err);
 
                 if (results.length > 0) {
                     res.status(200).json({
@@ -152,36 +151,34 @@ let controller = {
                     res.status(404).json({
                         status: 404,
                         message: 'No meal found'
-                    })
+                    });
                 };
-
-
             });
         });
     },
 
 
     // UC-305 Delete meal
-    deleteMeal: (req, res) => {
+    deleteMeal: (req, res, next) => {
         let deleteMealId = req.params.mealId;
         let userId = req.userId;
         logger.info('Deleting meal with id: ', deleteMealId);
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw (err) // not connected!
+            if (err) next(err); // not connected!
 
             // Use the connection
             if (userId) {
                 connection.query(
                     'SELECT * FROM meal WHERE id = ?;', [deleteMealId], function (error, results, fields) {
-                        if (error) throw error;
+                        if (err) next(err);
 
                         if (results.length > 0) {
                             connection.query(
                                 `DELETE FROM meal WHERE id = ? AND cookId = ?; SELECT * FROM meal;`, [deleteMealId, userId],
                                 function (error, results, fields) {
                                     connection.release();
-                                    if (error) throw error;
+                                    if (err) next(err);
 
 
                                     if (results[0].affectedRows > 0) {
