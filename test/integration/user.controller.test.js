@@ -175,7 +175,7 @@ describe('Manage users /api/user', () => {
         });
       });
       chai.request(server)
-        .get('/api/user?name=tester')
+        .get('/api/user?firstName=tester')
         .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
@@ -198,7 +198,7 @@ describe('Manage users /api/user', () => {
 
     it('TC-202-2 Show two users', (done) => {
       chai.request(server)
-        .get('/api/user?name=John')
+        .get('/api/user?firstName=John')
         .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
@@ -212,7 +212,7 @@ describe('Manage users /api/user', () => {
 
     it('TC-202-3 Show users with search term on non-existent name', (done) => {
       chai.request(server)
-        .get('/api/user?name=onbekend')
+        .get('/api/user?firstName=onbekend')
         .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
@@ -254,7 +254,7 @@ describe('Manage users /api/user', () => {
 
     it('TC-202-6 Show users with search term on existing name', (done) => {
       chai.request(server)
-        .get('/api/user?name=John')
+        .get('/api/user?firstName=John')
         .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');

@@ -98,17 +98,17 @@ let controller = {
 
     //UC-202 get all users
     getAll: (req, res, next) => {
-        let { name, isActive } = req.query;
+        let { firstName, isActive } = req.query;
         let query = 'SELECT * FROM user';
         logger.info('Getting all users');
 
-        if (name || isActive) {
+        if (firstName || isActive) {
             query += ' WHERE ';
-            if (name) {
-                query += `firstName LIKE "%${name}%"`;
+            if (firstName) {
+                query += `firstName LIKE "%${firstName}%"`;
             }
 
-            if (name && isActive) {
+            if (firstName && isActive) {
                 query += ' AND ';
             }
 
