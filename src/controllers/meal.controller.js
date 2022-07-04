@@ -36,83 +36,33 @@ let controller = {
 
 
     // UC-301 Add Meal
-    // addMeal: (req, res, next) => {
-    //     let meal = req.body;
-    //     let userId = req.userId;
-
-    //     meal.allergenes = meal.allergenes.toString();
-    //     meal.cookId = userId;
-    //     logger.info('Adding meal: ', meal);
-
-    //     dbconnection.getConnection(function (err, connection) {
-    //         if (err) next(err);
-    //         connection.query('INSERT INTO meal SET ?; SELECT * FROM meal;', meal, function (error, results, fields) {
-    //             connection.release();
-    //             if (err) next(err);
-        
-    //             connection.query('INSERT INTO meal_participants_user SET ?;', { mealId: results[0].insertId, userId: userId }, function (error, results, fields) {
-    //                 if (err) next(err);
-    //             });
-
-    //                 res.status(201).json({
-    //                     status: 201,
-    //                     result: results[1]
-    //                 });
-    //             });
-    //     });
-    // },
-
     addMeal: (req, res, next) => {
-        logger.debug("mealController: addMeal called.");
-        //format allergenes JSON to the right string for the query
-        const allergenes = req.body.allergenes;
-        let allergenesString = "";
-        for (let index = 0; index < allergenes.length; index++) {
-          allergenesString += allergenes[index] + ",";
-        }
-        if (allergenesString.equals !== "") {
-          allergenesString = allergenesString.slice(0, -1);
-        }
-        let mealReq = req.body;
-        let cookId = req.userId;
-        let mealObject = { ...mealReq, cookId };
-        mealObject.allergenes = allergenesString;
-        logger.debug("mealController: addMeal -->  Altered mealReq.");
-        logger.debug(mealObject);
-        let values = Object.keys(mealObject).map(function (key) {
-          return mealObject[key];
-        });
-    
+        let meal = req.body;
+        let userId = req.userId;
+
+        meal.allergenes = meal.allergenes.toString();
+        meal.cookId = userId;
+        logger.info('Adding meal: ', meal);
+
         dbconnection.getConnection(function (err, connection) {
-          //if not connected
-          if (err) {
-            next(err);
-          }
-          const query = `INSERT INTO meal (name, description, isActive, isVega, isVegan, isToTakeHome, dateTime, imageUrl, allergenes, maxAmountOfParticipants, price, cookId) VALUES (?)`;
-          //Use Connection
-          connection.query(query, [values], function (error, results, fields) {
-            connection.release();
-            // Handle error after the release.
-            if (error) {
-              next(error);
-            }
-    
-            // succesfull query handlers
-            if (results.affectedRows > 0) {
-              let meal = { id: results.insertId, ...req.body };
-              res.status(201).json({
-                status: 201,
-                result: meal,
-              });
-            } else {
-              res.status(400).json({
-                status: 400,
-                message: `Meal can not be created`,
-              });
-            }
-          });
+            if (err) next(err);
+            connection.query('INSERT INTO meal SET ?; SELECT * FROM meal;', meal, function (error, results, fields) {
+                connection.release();
+                if (err) next(err);
+        
+                connection.query('INSERT INTO meal_participants_user SET ?;', { mealId: results[0].insertId, userId: userId }, function (error, results, fields) {
+                    if (err) next(err);
+                });
+
+                    res.status(201).json({
+                        status: 201,
+                        result: results[1]
+                    });
+                });
         });
-      },
+    },
+
+  
 
     // UC-302 update meal
     updateMeal: (req, res, next) => {
