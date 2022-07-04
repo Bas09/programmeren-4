@@ -130,7 +130,7 @@ describe('Manage meals /api/meal', () => {
                     let { status, result } = res.body;
                     status.should.equals(201);
                     res.should.be.a("object");
-                    result.should.be.a('object');
+                    result.should.be.a('array');
                     done();
                 });
         });
