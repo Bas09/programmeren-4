@@ -102,20 +102,13 @@ let controller = {
         let query = 'SELECT * FROM user';
         logger.info('Getting all users');
 
-        if (firstName || isActive) {
-            query += ' WHERE ';
-            if (firstName) {
-                query += `firstName IS "%${firstName}%"`;
-            }
-
-            if (firstName && isActive) {
-                query += ' AND ';
-            }
-
-            if (isActive) {
-                query += `isActive = ${isActive}`;
-            }
-        }
+        if (isActive && firstName) {
+            query += ` WHERE firstName = '${firstName}' AND isActive = ${isActive}`;
+          } else if (isActive) {
+            query += ` WHERE isActive = ${isActive}`;
+          } else if (firstName) {
+            query += ` WHERE firstName = '${firstName}'`;
+          }
 
         query += ';';
 

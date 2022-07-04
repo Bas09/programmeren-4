@@ -175,7 +175,7 @@ describe('Manage users /api/user', () => {
         });
       });
       chai.request(server)
-        .get('/api/user?firstName=tester')
+        .get('/api/user?firstName=unkown')
         .set('authorization','Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
         .end((err, res) => {
           res.should.be.an('object');
