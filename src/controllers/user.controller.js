@@ -105,7 +105,7 @@ let controller = {
         if (firstName || isActive) {
             query += ' WHERE ';
             if (firstName) {
-                query += `firstName LIKE "%${firstName}%"`;
+                query += `firstName IS "%${firstName}%"`;
             }
 
             if (firstName && isActive) {
