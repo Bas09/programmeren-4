@@ -213,7 +213,7 @@ describe('Manage meals /api/meal', () => {
                 res.body.should.be.an('object');
                 let { status, message } = res.body;
                 status.should.equals(403);
-                message.should.be.a('string').that.equals('User not allowed to delete this meal');
+                message.should.be.a('string').that.equals('User not allowed to update this meal');
                 done();
             });
     });
@@ -364,7 +364,7 @@ describe('Manage meals /api/meal', () => {
             .end((err, res) => {
               let { status, message } = res.body;
               status.should.equals(404);
-              message.should.be.a('string').that.equals('meal does not exist');
+              message.should.be.a("string").that.equals("Deleting meal with id 9999 failed. It does not exist.");
               done();
             });
         });
@@ -377,7 +377,7 @@ describe('Manage meals /api/meal', () => {
                 res.should.be.an('object');
                 let { status, result } = res.body;
                 status.should.equals(200)
-                result.should.be.a('array');
+                result.should.be.a("string").that.equals("Meal with id 1 succesfully deleted.");
                 done();
               });
           });

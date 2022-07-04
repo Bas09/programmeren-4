@@ -98,7 +98,7 @@ let controller = {
                                     } else {
                                         res.status(403).json({
                                             status: 403,
-                                            message: "User not allowed to delete this meal"
+                                            message: "User not allowed to update this meal"
                                         });
                                     }
                                 })
@@ -162,51 +162,64 @@ let controller = {
 
     // UC-305 Delete meal
     deleteMeal: (req, res, next) => {
-        let deleteMealId = req.params.mealId;
-        let userId = req.userId;
-        logger.info('Deleting meal with id: ', deleteMealId);
-
+        logger.debug("mealController: deleteMeal called.");
+        let query = `DELETE FROM meal WHERE id = (?)`;
         dbconnection.getConnection(function (err, connection) {
-            if (err) next(err); // not connected!
-
-            // Use the connection
-            if (userId) {
+          //not connected
+          if (err) {
+            next(err);
+          }
+    
+          connection.query(
+            "SELECT * FROM meal WHERE id = ?",
+            [req.params.mealId],
+            function (error, results, fields) {
+              // When done with the connection, release it.
+              connection.release();
+              // Handle error after the release.
+              if (error) {
+                next(error);
+              }
+              // succesfull query handlers
+              if (results.length > 0 && results[0].cookId != req.userId) {
+                return res.status(403).json({
+                  status: 403,
+                  message: "User not allowed to delete this meal",
+                });
+              } else {
+                // Use the connection
                 connection.query(
-                    'SELECT * FROM meal WHERE id = ?;', [deleteMealId], function (error, results, fields) {
-                        if (err) next(err);
-
-                        if (results.length > 0) {
-                            connection.query(
-                                `DELETE FROM meal WHERE id = ? AND cookId = ?; SELECT * FROM meal;`, [deleteMealId, userId],
-                                function (error, results, fields) {
-                                    connection.release();
-                                    if (err) next(err);
-
-
-                                    if (results[0].affectedRows > 0) {
-                                        res.status(200).json({
-                                            status: 200,
-                                            result: results[1]
-                                        });
-                                    } else {
-                                        res.status(403).json({
-                                            status: 403,
-                                            message: "User not allowed to delete this meal"
-                                        });
-                                    }
-                                })
-                        } else {
-                            res.status(404).json({
-                                status: 404,
-                                message: "meal does not exist"
-                            });
-                        }
-                    });
-            };
+                  query,
+                  [req.params.mealId],
+                  function (error, results, fields) {
+                    // When done with the connection, release it.
+                    connection.release();
+    
+                    // Handle error after the release.
+                    if (error) {
+                      next(error);
+                    }
+                    if (results.affectedRows > 0) {
+                      let meal = { id: results.insertId, ...req.body };
+                      res.status(200).json({
+                        status: 200,
+                        result: `Meal with id ${req.params.mealId} succesfully deleted.`,
+                      });
+                    } else {
+                      res.status(404).json({
+                        status: 404,
+                        message: `Deleting meal with id ${req.params.mealId} failed. It does not exist.`,
+                      });
+                    }
+                  }
+                );
+              }
+            }
+          );
         });
-
-    },
-}
+      },
+    }
+    
 module.exports = controller;
 
 
